@@ -1,0 +1,83 @@
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
+import sys
+
+class GameWindow(QMainWindow):
+    def __init__ (self):
+        super().__init__()
+        
+        self.setWindowTitle("Primary Maths Game - Game Window")
+
+        self.submit_answer_button = QPushButton("Submit Answer")
+        self.clear_answer_button = QPushButton("Clear Answer")
+
+        self.layout = QVBoxLayout()
+        self.bottom_layout = QGridLayout()
+        self.middle_layout = QGridLayout()
+        self.top_layout = QHBoxLayout()
+
+        self.layout.addLayout(self.bottom_layout)
+        self.layout.addLayout(self.middle_layout)
+        self.layout.addLayout(self.top_layout)
+        
+        self.PrimaryMathsTitle = QLabel("Primary Maths Game")
+        self.PrimaryMathsTitle.setAlignment(Qt.AlignCenter|Qt.AlignTop)
+        
+        PrimaryMathsTitleFont = QFont()
+        PrimaryMathsTitleFont.setPointSize(15)
+        PrimaryMathsTitleFont.setBold(True)
+        self.PrimaryMathsTitle.setFont(PrimaryMathsTitleFont)
+
+        self.QuestionLabel = QLabel("Question {0}".format(QuestionNumber))
+        QuestionLabelFont = QFont()
+        QuestionLabelFont.setPointSize(10)
+        self.QuestionLabel.setFont(QuestionLabelFont)
+
+        self.SmallQuestionLabel = QLabel("Question")
+
+        self.QuestionDisplay = QLabel("{0}".format(question))
+        QuestionDisplayFont = QFont()
+        QuestionDisplayFont.setPointSize(10)
+        self.QuestionDisplay.setFont(QuestionDisplayFont)
+
+        self.AnswerLabel = QLabel("Answer")
+
+        self.AnswerLine = QLineEdit()
+        AnswerFont = QFont()
+        AnswerFont.setPointSize(10)
+        self.AnswerLine.setFont(AnswerFont)
+
+        self.widget = QWidget()
+        self.widget.setLayout(self.layout)
+
+        self.top_layout.addWidget(PrimaryMathsTitle)
+        self.top_layout.addWidget(QuestionLabel)
+        self.middle_layout.addWidget(self.SmallQuestionLabel,0,0)
+        self.middle_layout.addWidget(self.QuestionDisplay,0,1)
+        self.middle_layout.addWidget(self.AnswerLabel,1,0)
+        self.middle_layout.addWidget(self.AnswerLine,1,1)
+        self.bottom_layout.addWidget(self.submit_answer_button,0,0)
+        self.bottom_layout.addWidget(self.clear_answer_button,0,1)
+
+        self.setCentralWidget(self.widget)
+        self.widget.setMinimumSize(QSize(450,300))
+
+if __name__ == "__main__":
+    application = QApplication(sys.argv)
+    window = LogInWindow()
+    window.show()
+    window.raise_()
+    application.exec_()
+
+        
+
+
+
+
+
+
+
+        
+
+        
