@@ -1,14 +1,16 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from Question import *
 
 import sys
+
 
 class GameWindow(QMainWindow):
     def __init__ (self):
         super().__init__()
 
         QuestionNumber = 1
-        Question = "10 + 10 = ?"
+        Actual_Question = get_question()
         
         self.setWindowTitle("Primary Maths Game - Game Window")
 
