@@ -31,4 +31,7 @@ while int(Division_Question) != Division_Question and DivisonOne > DisionTwo:
     Divison_Question = DivisonOne / DivisionTwo
 Questions.append(Division_Question)
 
-print(Question)
+print(Addition_Question)
+print(Subtraction_Question)
+print(Multiplication_Question)
+print(Divison_Question)

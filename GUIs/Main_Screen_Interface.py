@@ -26,17 +26,17 @@ class MainScreenWindow(QMainWindow):
         self.options_button.setFont(self.optionsFont)
         self.options_button.setMinimumSize(50,50)
 
-        self.layout = QVBoxLayout()
+        self.Main_Screen_layout = QVBoxLayout()
         self.bottom_layout = QGridLayout()
         self.middle_layout = QGridLayout()
         self.top_layout = QHBoxLayout()
 
-        self.layout.addLayout(self.top_layout)
-        self.layout.addLayout(self.middle_layout)
-        self.layout.addLayout(self.bottom_layout)
+        self.Main_Screen_layout.addLayout(self.top_layout)
+        self.Main_Screen_layout.addLayout(self.middle_layout)
+        self.Main_Screen_layout.addLayout(self.bottom_layout)
 
-        self.widget = QWidget()
-        self.widget.setLayout(self.layout)
+        self.Main_Screen_widget = QWidget()
+        self.Main_Screen_widget.setLayout(self.Main_Screen_layout)
 
         self.PrimaryMathsTitle = QLabel("Primary Maths Game")
         self.PrimaryMathsTitle.setAlignment(Qt.AlignCenter)
@@ -52,8 +52,8 @@ class MainScreenWindow(QMainWindow):
         self.middle_layout.addWidget(self.options_button,2,1)
         
 
-        self.setCentralWidget(self.widget)
-        self.widget.setMinimumSize(QSize(450,300))
+        self.setCentralWidget(self.Main_Screen_widget)
+        self.Main_Screen_widget.setMinimumSize(QSize(450,300))
 
 if __name__ == "__main__":
     application = QApplication(sys.argv)
