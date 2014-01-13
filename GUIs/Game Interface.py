@@ -10,7 +10,8 @@ class GameWindow(QMainWindow):
         super().__init__()
 
         QuestionNumber = 1
-        Actual_Question = get_question()
+        Question = "10 + 10 = ?"
+        #Actual_Question = get_question()
         
         self.setWindowTitle("Primary Maths Game - Game Window")
 

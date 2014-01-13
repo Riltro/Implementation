@@ -28,7 +28,7 @@ def QuestionGenerator():
     Multiplication_Question = MultiplicationOne * MultiplicationTwo
     Questions.append(Multiplication_Question)
 
-    Divison_Question = ""
+    Divison_Question = 1.5
     while int(Division_Question) != Division_Question and DivisonOne > DisionTwo:
         Divison_Question = DivisonOne / DivisionTwo
     Questions.append(Division_Question)
