@@ -1,5 +1,7 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+from PyQt4.QtSql import *
+import sqlite3
 
 import sys
 
@@ -12,12 +14,14 @@ class MainScreenWindow(QMainWindow):
         self.setWindowTitle("Primary Maths Game - Main Menu Window")
         self.create_game_interface()
         self.create_options_screen_layouts()
+        self.create_database_screen()
         self.create_main_screen_layouts()
 
         self.stacked_layout = QStackedLayout()
         self.stacked_layout.addWidget(self.Main_Screen_widget)
         self.stacked_layout.addWidget(self.Options_widget)
         self.stacked_layout.addWidget(self.game_widget)
+        self.stacked_layout.addWidget(self.table_widget)
 
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.stacked_layout)
@@ -73,6 +77,7 @@ class MainScreenWindow(QMainWindow):
 
         self.options_button.clicked.connect(self.changing_to_options)
         self.start_game_button.clicked.connect(self.changing_to_game)
+        self.database_button.clicked.connect(self.changing_to_database)
 
     def create_options_screen_layouts(self):
         self.setWindowTitle("Primary Maths Game - Main Menu Window")
@@ -225,6 +230,74 @@ class MainScreenWindow(QMainWindow):
 
         self.Quit_Button.clicked.connect(self.main_screen_back)
 
+    def create_database_screen(self):
+        self.db = QSqlDatabase.addDatabase("QSQLITE")
+        self.db.setDatabaseName("Primary Maths Game.db")
+        self.db.open()
+
+        self.back_button = QPushButton("Back")
+        
+
+        self.table_view = QTableView()
+        self.over_layout = QGridLayout()
+        self.table_layout = QVBoxLayout()
+        self.under_layout = QGridLayout()
+
+        self.table_layout.addWidget(self.table_view)
+        self.under_layout.addWidget(self.back_button,0,0)
+
+        self.over_layout.addLayout(self.table_layout,1,1)
+        self.over_layout.addLayout(self.under_layout,2,1)
+
+        query = QSqlQuery()
+        SchoolID = 1
+        TeacherID = 1
+        StudentAbilityID = 1
+        StudentName = "John"
+        with sqlite3.connect("Primary Maths Game.db") as db:
+            cursor = db.cursor()
+            cursor.execute("INSERT INTO Student ({0}, {1}, {2}, {3}) VALUES (?,?,?,?)".format(SchoolID, TeacherID, StudentAbilityID, StudentName))
+            db.commit()
+
+##        query.prepare(""""INSERT INTO Student (SchoolID, TeacherID, StudentAbilityID, StudentName) VALUES (?,?,?,?)""")
+##        query.bindValue(0,SchoolID)
+##        query.bindValue(1,TeacherID)
+##        query.bindValue(2,StudentAbilityID)
+##        query.bindValue(3,StudentName)
+##        query.exec_()
+##        print(query.lastError().number())
+
+
+        self.table_widget = QWidget()
+        self.table_widget.setLayout(self.over_layout)
+
+        self.model = QSqlTableModel()
+        self.model.setTable("Student")
+        self.table_view.setModel(self.model)
+        self.table_view.model().select()
+        self.model.select()
+
+        self.back_button.clicked.connect(self.main_screen_back)
+        
+ 
+##        self.Database_Query = QSqlQuery()
+##        self.Database_Query.prepare("""SELECT
+##                                       StudentID as "StudentID"
+##                                       SchoolID as "SchoolID",
+##                                       TeacherID as "TeacherID",
+##                                       StudentAbilityID as "StudentAbilityID",
+##                                       StudentName as "StudentName"
+##                                       FROM Student
+##                                       WHERE StudentID = ?""")
+##        self.Database_Query.addBindValue(0)
+##        self.Database_Query.exec_()
+##        self.Database_Query_Model = QSqlQueryModel()
+##        self.Database_Query_Model.setQuery(self.Database_Query)
+##        self.table_view.setModel(self.Database_Query_Model)
+
+
+        
+
         
     def main_screen_back(self):
         self.setWindowTitle("Primary Maths Game - Main Menu Window")
@@ -237,6 +310,10 @@ class MainScreenWindow(QMainWindow):
     def changing_to_game(self):
         self.setWindowTitle("Primary Maths Game - Game Window")
         self.stacked_layout.setCurrentIndex(2)
+
+    def changing_to_database(self):
+        self.setWindowTitle("Primary Maths Game - Database Window")
+        self.stacked_layout.setCurrentIndex(3)
 
 def main():
     application = QApplication(sys.argv)

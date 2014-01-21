@@ -19,7 +19,7 @@ def create_table(db_name,table_name,sql):
             keep_table = False
         if not keep_table:
             cursor.execute(sql)
-            db.commit
+            db.commit()
 
 
 def create_game_table():
