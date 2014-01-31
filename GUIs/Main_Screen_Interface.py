@@ -17,18 +17,24 @@ class MainScreenWindow(QMainWindow):
         self.create_options_screen_layouts()
         self.create_database_screen()
         self.adding_student_layout()
+        self.change_student_records_intermediate()
         self.create_main_screen_layouts()
 
-        self.stacked_layout = QStackedLayout()
-        self.stacked_layout.addWidget(self.Main_Screen_widget)
-        self.stacked_layout.addWidget(self.Options_widget)
-        self.stacked_layout.addWidget(self.game_widget)
-        self.stacked_layout.addWidget(self.table_widget)
-        self.stacked_layout.addWidget(self.adding_student_widget)
+        self.stacked_layout = QStackedLayout() 
+        self.stacked_layout.addWidget(self.Main_Screen_widget) #1
+        self.stacked_layout.addWidget(self.Options_widget) #2
+        self.stacked_layout.addWidget(self.game_widget) #3
+        self.stacked_layout.addWidget(self.table_widget) #4
+        self.stacked_layout.addWidget(self.adding_student_widget) #5
+        self.stacked_layout.addWidget(self.changing_intermediate_widget) #6
 
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.stacked_layout)
         self.setCentralWidget(self.central_widget)
+
+        self.db = QSqlDatabase.addDatabase("QSQLITE")
+        self.db.setDatabaseName("Primary Maths Game.db")
+        self.db.open()
         
         
         
@@ -143,7 +149,7 @@ class MainScreenWindow(QMainWindow):
         self.Options_widget.setMinimumSize(QSize(450,300))
 
         self.back_button.clicked.connect(self.main_screen_back)
-        #self.change_record_button.clicked.connect(self.adding_student_layout)
+        self.change_record_button.clicked.connect(self.changing_to_intermediate)
 
     def create_game_interface(self):
 
@@ -243,7 +249,6 @@ class MainScreenWindow(QMainWindow):
         self.db.open()
 
         self.back_button = QPushButton("Back")
-        
 
         self.table_view = QTableView()
         self.over_layout = QGridLayout()
@@ -256,30 +261,6 @@ class MainScreenWindow(QMainWindow):
         self.over_layout.addLayout(self.table_layout,1,1)
         self.over_layout.addLayout(self.under_layout,2,1)
 
-##        query = QSqlQuery()
-##        SchoolID = 1
-##        TeacherID = 1
-##        StudentAbilityID = 1
-##        StudentName = "John"
-##        with sqlite3.connect("Primary Maths Game.db") as db:
-##            cursor = db.cursor()
-##            cursor.execute("""INSERT INTO Student (SchoolID, TeacherID, StudentAbilityID, StudentName) VALUES (?,?,?,?)""")
-##            query.bindValue(0,SchoolID)
-##            query.bindValue(1,TeacherID)
-##            query.bindValue(2,StudentAbilityID)
-##            query.bindValue(3,StudentName)
-##            query.exec_()
-##            db.commit()
-##
-##        query.prepare(""""INSERT INTO Student (SchoolID, TeacherID, StudentAbilityID, StudentName) VALUES (?,?,?,?)""")
-##        query.bindValue(0,SchoolID)
-##        query.bindValue(1,TeacherID)
-##        query.bindValue(2,StudentAbilityID)
-##        query.bindValue(3,StudentName)
-##        query.exec_()
-##        print(query.lastError().number())
-
-
         self.table_widget = QWidget()
         self.table_widget.setLayout(self.over_layout)
 
@@ -291,23 +272,8 @@ class MainScreenWindow(QMainWindow):
 
         self.back_button.clicked.connect(self.main_screen_back)
         
- 
-##        self.Database_Query = QSqlQuery()
-##        self.Database_Query.prepare("""SELECT
-##                                       StudentID as "StudentID"
-##                                       SchoolID as "SchoolID",
-##                                       TeacherID as "TeacherID",
-##                                       StudentAbilityID as "StudentAbilityID",
-##                                       StudentName as "StudentName"
-##                                       FROM Student
-##                                       WHERE StudentID = ?""")
-##        self.Database_Query.addBindValue(0)
-##        self.Database_Query.exec_()
-##        self.Database_Query_Model = QSqlQueryModel()
-##        self.Database_Query_Model.setQuery(self.Database_Query)
-##        self.table_view.setModel(self.Database_Query_Model)
-
     def adding_student_layout(self):
+         
         self.add_button = QPushButton("Add Student")
         self.AddFont = QFont()
         self.AddFont.setPointSize(10)
@@ -326,7 +292,7 @@ class MainScreenWindow(QMainWindow):
 
         self.layout = QVBoxLayout()
         self.Under_Layout = QGridLayout()
-        
+
         self.layout.addLayout(self.Under_Layout)
 
         self.StudentNameLabel = QLabel("Student Name:")
@@ -353,11 +319,12 @@ class MainScreenWindow(QMainWindow):
         self.TeacherIDAnswer = QLineEdit()
         self.TeacherIDAnswer.setFont(StudentAbilityFont)
 
-        self.SchoolIDLabel = QLabel("School ID")
+        self.SchoolIDLabel = QLabel("School ID:")
         self.SchoolIDLabel.setFont(StudentAbilityFont)
 
         self.SchoolIDAnswer = QLineEdit()
         self.SchoolIDAnswer.setFont(StudentAbilityFont)
+
 
         self.Under_Layout.addWidget(self.StudentNameLabel,0,0)
         self.Under_Layout.addWidget(self.StudentNameAnswer,0,1)
@@ -367,11 +334,47 @@ class MainScreenWindow(QMainWindow):
         self.Under_Layout.addWidget(self.TeacherIDAnswer,2,1)
         self.Under_Layout.addWidget(self.SchoolIDLabel,3,0)
         self.Under_Layout.addWidget(self.SchoolIDAnswer,3,1)
+        self.Under_Layout.addWidget(self.add_button,4,0)
+        self.Under_Layout.addWidget(self.clear_data_button,4,1)
+        self.Under_Layout.addWidget(self.Quit_Button,4,2)
 
         self.adding_student_widget = QWidget()
         self.adding_student_widget.setLayout(self.layout)
 
         
+        self.add_button.clicked.connect(self.adding_student_to_database)
+        self.Quit_Button.clicked.connect(self.changing_to_options)
+
+    def change_student_records_intermediate(self):
+        self.adding_student_button = QPushButton("Add A Student")
+        self.deleting_student_button = QPushButton("Delete A Student")
+        self.updating_student_button = QPushButton("Update A Student")
+
+        self.layout = QHBoxLayout()
+
+        self.layout.addWidget(self.adding_student_button)
+        self.layout.addWidget(self.deleting_student_button)
+        self.layout.addWidget(self.updating_student_button)
+
+        self.changing_intermediate_widget = QWidget()
+        self.changing_intermediate_widget.setLayout(self.layout)
+
+        self.adding_student_button.clicked.connect(self.changing_to_adding)
+
+    def adding_student_to_database(self):
+        query = QSqlQuery()
+        Name = self.StudentNameAnswer.text()
+        StudentAbility = self.StudentAbilityIDAnswer.text()
+        TeacherID = self.TeacherIDAnswer.text()
+        SchoolID = self.SchoolIDAnswer.text()
+        query.prepare("""INSERT INTO Student (SchoolID, TeacherID, StudentAbilityID, StudentName) VALUES (?,?,?,?)""")
+        query.bindValue(0, SchoolID)
+        query.bindValue(1, TeacherID)
+        query.bindValue(2, StudentAbility)
+        query.bindValue(3, Name)
+        query.exec_()
+        print(query.lastError().text())
+
 
     def question_generator(self):
         FirstNumber = random.randint(0,20)
@@ -410,7 +413,11 @@ class MainScreenWindow(QMainWindow):
 
     def changing_to_adding(self):
         self.setWindowTitle("Primary Maths Game - Database Window: Adding")
-        self.stacked_layout.setCurrent(4)
+        self.stacked_layout.setCurrentIndex(4)
+
+    def changing_to_intermediate(self):
+        self.setWindowTitle("Primary Maths Game - Database Window: Intermediate")
+        self.stacked_layout.setCurrentIndex(5)
 
 def main():
     application = QApplication(sys.argv)
