@@ -18,6 +18,7 @@ class MainScreenWindow(QMainWindow):
         self.create_database_screen()
         self.adding_student_layout()
         self.change_student_records_intermediate()
+        self.delete_student_layout()
         self.create_main_screen_layouts()
 
         self.stacked_layout = QStackedLayout() 
@@ -27,6 +28,7 @@ class MainScreenWindow(QMainWindow):
         self.stacked_layout.addWidget(self.table_widget) #4
         self.stacked_layout.addWidget(self.adding_student_widget) #5
         self.stacked_layout.addWidget(self.changing_intermediate_widget) #6
+        self.stacked_layout.addWidget(self.deleting_student_widget) #7
 
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.stacked_layout)
@@ -345,6 +347,56 @@ class MainScreenWindow(QMainWindow):
         self.add_button.clicked.connect(self.adding_student_to_database)
         self.Quit_Button.clicked.connect(self.changing_to_options)
 
+    def delete_student_layout(self):
+        self.delete_button = QPushButton("Delete Student")
+        self.DeleteFont = QFont()
+        self.DeleteFont.setPointSize(10)
+        self.delete_button.setFont(self.DeleteFont)
+        self.delete_button.setMinimumSize(30,30)
+        self.clear_data_button = QPushButton("Clear")
+        self.Clear_dataFont = QFont()
+        self.Clear_dataFont.setPointSize(10)
+        self.clear_data_button.setFont(self.Clear_dataFont)
+        self.clear_data_button.setMinimumSize(30,30)
+        self.Quit_Button = QPushButton("Quit")
+        self.Quit_Button_Font = QFont()
+        self.Quit_Button_Font.setPointSize(10)
+        self.Quit_Button.setFont(self.Quit_Button_Font)
+        self.Quit_Button.setMinimumSize(30,30)
+
+        self.layout = QVBoxLayout()
+        self.Under_Layout = QGridLayout()
+
+        self.layout.addLayout(self.Under_Layout)
+
+        with sqlite3.connect("Primary Maths Game.db") as db:
+            self.cursor = db.cursor()
+            self.cursor.execute("select StudentName from Student")
+            StudentList = []
+            for each1 in self.cursor.fetchall():
+                for each2 in each1:
+                    StudentList.append(each2)
+
+
+        self.student = QLabel("Student Name/ID")
+        self.student_name_dropdown = QComboBox()
+        for each in StudentList:
+            self.student_name_dropdown.addItem(each)
+
+        self.Under_Layout.addWidget(self.student,0,0)
+        self.Under_Layout.addWidget(self.student_name_dropdown,0,1)
+        self.Under_Layout.addWidget(self.delete_button,1,0)
+        self.Under_Layout.addWidget(self.clear_data_button,1,1)
+        self.Under_Layout.addWidget(self.Quit_Button,1,2)
+
+        self.deleting_student_widget = QWidget()
+        self.deleting_student_widget.setLayout(self.layout)
+
+        #self.delete_button.clicked.conncet()
+        #self.clear_data_button.clicked.connect()
+        self.Quit_Button.clicked.connect(self.changing_to_options)
+        
+
     def change_student_records_intermediate(self):
         self.adding_student_button = QPushButton("Add A Student")
         self.deleting_student_button = QPushButton("Delete A Student")
@@ -360,6 +412,7 @@ class MainScreenWindow(QMainWindow):
         self.changing_intermediate_widget.setLayout(self.layout)
 
         self.adding_student_button.clicked.connect(self.changing_to_adding)
+        self.deleting_student_button.clicked.connect(self.changing_to_deleting)
 
     def adding_student_to_database(self):
         query = QSqlQuery()
@@ -374,6 +427,21 @@ class MainScreenWindow(QMainWindow):
         query.bindValue(3, Name)
         query.exec_()
         print(query.lastError().text())
+
+##    def deleting_student_from_database(self):
+##        query = QSqlQuery()
+##        Name = self.StudentNameAnswer.text()
+##        StudentAbility = self.StudentAbilityIDAnswer.text()
+##        TeacherID = self.TeacherIDAnswer.text()
+##        SchoolID = self.SchoolIDAnswer.text()
+##        query.prepare("""INSERT INTO Student (SchoolID, TeacherID, StudentAbilityID, StudentName) VALUES (?,?,?,?)""")
+##        query.bindValue(0, SchoolID)
+##        query.bindValue(1, TeacherID)
+##        query.bindValue(2, StudentAbility)
+##        query.bindValue(3, Name)
+##        query.exec_()
+##        print(query.lastError().text())
+
 
 
     def question_generator(self):
@@ -418,6 +486,10 @@ class MainScreenWindow(QMainWindow):
     def changing_to_intermediate(self):
         self.setWindowTitle("Primary Maths Game - Database Window: Intermediate")
         self.stacked_layout.setCurrentIndex(5)
+
+    def changing_to_deleting(self):
+        self.setWindowTitle("Primary Maths Game - Database Window: Deleting")
+        self.stacked_layout.setCurrentIndex(6)
 
 def main():
     application = QApplication(sys.argv)
