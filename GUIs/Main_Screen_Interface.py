@@ -19,16 +19,20 @@ class MainScreenWindow(QMainWindow):
         self.adding_student_layout()
         self.change_student_records_intermediate()
         self.delete_student_layout()
+        self.changing_difficulty_layout()
+        self.validation_of_deleting()
         self.create_main_screen_layouts()
 
         self.stacked_layout = QStackedLayout() 
-        self.stacked_layout.addWidget(self.Main_Screen_widget) #1
-        self.stacked_layout.addWidget(self.Options_widget) #2
-        self.stacked_layout.addWidget(self.game_widget) #3
-        self.stacked_layout.addWidget(self.table_widget) #4
-        self.stacked_layout.addWidget(self.adding_student_widget) #5
-        self.stacked_layout.addWidget(self.changing_intermediate_widget) #6
-        self.stacked_layout.addWidget(self.deleting_student_widget) #7
+        self.stacked_layout.addWidget(self.Main_Screen_widget) #0
+        self.stacked_layout.addWidget(self.Options_widget) #1
+        self.stacked_layout.addWidget(self.game_widget) #2
+        self.stacked_layout.addWidget(self.table_widget) #3
+        self.stacked_layout.addWidget(self.adding_student_widget) #4
+        self.stacked_layout.addWidget(self.changing_intermediate_widget) #5
+        self.stacked_layout.addWidget(self.deleting_student_widget) #6
+        self.stacked_layout.addWidget(self.difficulty_widget) #7
+        self.stacked_layout.addWidget(self.validation_widget) #8
 
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.stacked_layout)
@@ -129,15 +133,9 @@ class MainScreenWindow(QMainWindow):
         PrimaryMathsTitleFont = QFont()
         PrimaryMathsTitleFont.setPointSize(15)
         PrimaryMathsTitleFont.setBold(True)
-        self.PrimaryMathsTitle.setFont(PrimaryMathsTitleFont)
-
-        #self.OptionsTitle = QLabel("Options")
-        #self.OptionsTitle.setAlignment(Qt.AlignCenter|Qt.AlignBottom)
-
-        #self.OptionsTitle.setFont(PrimaryMathsTitleFont)        
+        self.PrimaryMathsTitle.setFont(PrimaryMathsTitleFont)  
         
         self.top_layout.addWidget(self.PrimaryMathsTitle)
-        #self.top_layout.addWidget(self.OptionsTitle)
         self.middle_layout.addWidget(self.change_difficulty_button,0,1)
         self.middle_layout.addWidget(self.change_record_button,1,1)
         self.middle_layout.addWidget(self.clear_data_button,2,1)
@@ -152,7 +150,9 @@ class MainScreenWindow(QMainWindow):
 
         self.back_button.clicked.connect(self.main_screen_back)
         self.change_record_button.clicked.connect(self.changing_to_intermediate)
-
+        self.change_difficulty_button.clicked.connect(self.changing_to_difficulty)
+        self.clear_data_button.clicked.connect(self.changing_to_validation)
+        
     def create_game_interface(self):
 
         QuestionNumber = 1
@@ -395,7 +395,6 @@ class MainScreenWindow(QMainWindow):
     def change_student_records_intermediate(self):
         self.adding_student_button = QPushButton("Add A Student")
         self.deleting_student_button = QPushButton("Delete A Student")
-        self.updating_student_button = QPushButton("Update A Student")
         self.back_button = QPushButton("Back")
 
         self.layout = QGridLayout()
@@ -407,7 +406,6 @@ class MainScreenWindow(QMainWindow):
 
         self.middleLayout.addWidget(self.adding_student_button)
         self.middleLayout.addWidget(self.deleting_student_button)
-        self.middleLayout.addWidget(self.updating_student_button)
         self.underLayout.addWidget(self.back_button)
 
         self.changing_intermediate_widget = QWidget()
@@ -415,6 +413,35 @@ class MainScreenWindow(QMainWindow):
 
         self.adding_student_button.clicked.connect(self.changing_to_adding)
         self.deleting_student_button.clicked.connect(self.changing_to_deleting)
+        self.back_button.clicked.connect(self.changing_to_options)
+
+    def changing_difficulty_layout(self):
+
+        self.back_button = QPushButton("Back")
+        self.select_button = QPushButton("Select")
+        
+        self.layout = QVBoxLayout()
+        self.dropdown_layout = QGridLayout()
+        self.underneath_layout = QGridLayout()
+
+        self.layout.addLayout(self.dropdown_layout)
+        self.layout.addLayout(self.underneath_layout)
+
+        self.difficulty_label = QLabel("Game Difficulty")
+        self.difficulty_dropdown = QComboBox()
+        for count in range(10):
+            count = count + 1
+            count_str = str(count)
+            self.difficulty_dropdown.addItem(count_str)
+
+        self.dropdown_layout.addWidget(self.difficulty_label,0,0)
+        self.dropdown_layout.addWidget(self.difficulty_dropdown,0,1)
+        self.underneath_layout.addWidget(self.select_button,0,0)
+        self.underneath_layout.addWidget(self.back_button,0,1)
+
+        self.difficulty_widget = QWidget()
+        self.difficulty_widget.setLayout(self.layout)
+
         self.back_button.clicked.connect(self.changing_to_options)
 
     def adding_student_to_database(self):
@@ -431,6 +458,40 @@ class MainScreenWindow(QMainWindow):
         query.exec_()
         self.clearing_data()
         print(query.lastError().text())
+
+    def deleting_all_data(self):
+##        with sqlite3.connect("Primary Maths Database.db") as db:
+##            cursor = db.cursor()
+##            sql = "DELETE FROM Student WHERE StudentID > 0"
+##            cursor.execute(sql)
+##            db.commit()
+        query = QSqlQuery()
+        query.prepare("""DELETE FROM Student WHERE StudentID > 0""")
+        query.exec_()
+
+    def validation_of_deleting(self):
+        self.yes_button = QPushButton("Yes")
+        self.no_button = QPushButton("No")
+        self.validation_statement = QLabel("Are you sure you want delete ALL data from the database?")
+
+        self.top_layout = QHBoxLayout()
+        self.bottom_layout = QGridLayout()
+        self.validation_layout = QVBoxLayout()
+
+        self.validation_layout.addLayout(self.top_layout)
+        self.validation_layout.addLayout(self.bottom_layout)
+
+        self.top_layout.addWidget(self.validation_statement)
+        self.bottom_layout.addWidget(self.yes_button,0,0)
+        self.bottom_layout.addWidget(self.no_button,0,1)
+
+        self.validation_widget = QWidget()
+        self.validation_widget.setLayout(self.validation_layout)
+
+        self.yes_button.clicked.connect(self.deleting_all_data)
+        self.yes_button.clicked.connect(self.main_screen_back)
+        self.no_button.clicked.connect(self.changing_to_options)
+            
 
     def deleting_student_from_database(self):
         query = QSqlQuery()
@@ -483,8 +544,7 @@ class MainScreenWindow(QMainWindow):
     def changing_to_database(self):
         self.setWindowTitle("Primary Maths Game - Database Window")
         self.stacked_layout.setCurrentIndex(3)
-        self.model.refresh()
-
+        
     def changing_to_adding(self):
         self.setWindowTitle("Primary Maths Game - Database Window: Adding")
         self.stacked_layout.setCurrentIndex(4)
@@ -496,6 +556,14 @@ class MainScreenWindow(QMainWindow):
     def changing_to_deleting(self):
         self.setWindowTitle("Primary Maths Game - Database Window: Deleting")
         self.stacked_layout.setCurrentIndex(6)
+
+    def changing_to_difficulty(self):
+        self.setWindowTitle("Primary Maths Game - Changing Difficulty Window")
+        self.stacked_layout.setCurrentIndex(7)
+
+    def changing_to_validation(self):
+        self.setWindowTitle("Primary Maths Game - Validation Window")
+        self.stacked_layout.setCurrentIndex(8)
 
 def main():
     application = QApplication(sys.argv)
