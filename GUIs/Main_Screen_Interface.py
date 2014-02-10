@@ -13,6 +13,7 @@ class MainScreenWindow(QMainWindow):
 
 
         self.setWindowTitle("Primary Maths Game - Main Menu Window")
+        self.question_generator()
         self.create_game_interface()
         self.create_options_screen_layouts()
         self.create_database_screen()
@@ -95,7 +96,6 @@ class MainScreenWindow(QMainWindow):
         self.database_button.clicked.connect(self.changing_to_database)
 
     def create_options_screen_layouts(self):
-        self.setWindowTitle("Primary Maths Game - Main Menu Window")
         
         self.change_record_button = QPushButton("Change Student's Record")
         self.change_recordFont = QFont()
@@ -156,8 +156,8 @@ class MainScreenWindow(QMainWindow):
     def create_game_interface(self):
 
         QuestionNumber = 1
-        Question = "10 + 10 = ?"
-        #Actual_Question = get_question()
+        RawQuestion = self.QuestionList[QuestionNumber - 1],"=?"
+        Question = ("".join(map(str,RawQuestion)))
 
         self.submit_answer_button = QPushButton("Submit Answer")
         self.SubmitAnswerFont = QFont()
@@ -242,7 +242,7 @@ class MainScreenWindow(QMainWindow):
         self.game_widget.setMinimumSize(QSize(450,300))
 
         self.Quit_Button.clicked.connect(self.main_screen_back)
-        self.submit_answer_button.clicked.connect(self.questions)
+        #self.submit_answer_button.clicked.connect()
 
         return QuestionNumber
 
@@ -491,6 +491,7 @@ class MainScreenWindow(QMainWindow):
         self.yes_button.clicked.connect(self.deleting_all_data)
         self.yes_button.clicked.connect(self.main_screen_back)
         self.no_button.clicked.connect(self.changing_to_options)
+        self.validation_statement.setAlignment(Qt.AlignCenter)
             
 
     def deleting_student_from_database(self):
@@ -511,24 +512,44 @@ class MainScreenWindow(QMainWindow):
 
 
     def question_generator(self):
-        FirstNumber = random.randint(0,20)
-        SecondNumber = random.randint(0,20)
-        SignGenerator = random.randint(1,4)
-        Signs = []
-        Signs.append("+")
-        Signs.append("-")
-        Signs.append("*")
-        Signs.append("/")
-        Sign = Signs[SignGenerator]
+        FirstNumberList = []
+        for each in range(20):
+            FirstNumber = random.randint(1,20)
+            FirstNumberList.append(FirstNumber)
 
-        return FirstNumber, SecondNumber, Sign
+        SecondNumberList = []
+        for each in range(20):
+            SecondNumber = random.randint(1,20)
+            SecondNumberList.append(SecondNumber)
 
-    def questions(self,QuestionNumber,FirstNumber,SecondNumber,Sign):
-        QuestionNumber += 1
-        while QuestionNumber <= 20:
-            Question = ("{0},{1},{2}".format(FirstNumber, Sign, SecondNumber))
+        SignList = []
+        SignList.append("*")
+        SignList.append("-")
+        SignList.append("+")
+        SignList.append("/")
 
+        ListChoice = random.randint(0,19)
+        SignListChoice = random.randint(0,3)
 
+        self.QuestionList = []
+        
+        for each in range(20):
+            ListChoice = random.randint(0,19)
+            SignListChoice = random.randint(0,3)
+            Question = str(FirstNumberList[ListChoice]),str(SignList[SignListChoice]),str(SecondNumberList[ListChoice])
+            NewQuestion = ("".join(map(str,Question)))
+
+            self.QuestionList.append(NewQuestion)
+
+        Answers = []
+        for count in range(20):
+            RawAnswer = int(FirstNumberList[count]),SignList[1],int(SecondNumberList[count])
+            Answer = ("".join(map(str,RawAnswer)))
+            Answers.append(Answer)
+        for each in range(len(Answers)):
+            print(Answers[each])
+
+            
     def main_screen_back(self):
         self.setWindowTitle("Primary Maths Game - Main Menu Window")
         self.stacked_layout.setCurrentIndex(0)
