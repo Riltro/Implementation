@@ -22,6 +22,7 @@ class MainScreenWindow(QMainWindow):
         self.delete_student_layout()
         self.changing_difficulty_layout()
         self.validation_of_deleting()
+        self.end_game_layout()
         self.create_main_screen_layouts()
 
         self.stacked_layout = QStackedLayout() 
@@ -34,6 +35,7 @@ class MainScreenWindow(QMainWindow):
         self.stacked_layout.addWidget(self.deleting_student_widget) #6
         self.stacked_layout.addWidget(self.difficulty_widget) #7
         self.stacked_layout.addWidget(self.validation_widget) #8
+        self.stacked_layout.addWidget(self.end_widget) #9
 
         self.central_widget = QWidget()
         self.central_widget.setLayout(self.stacked_layout)
@@ -155,9 +157,10 @@ class MainScreenWindow(QMainWindow):
         
     def create_game_interface(self):
 
-        QuestionNumber = 1
-        RawQuestion = self.QuestionList[QuestionNumber - 1],"=?"
-        Question = ("".join(map(str,RawQuestion)))
+        self.QuestionNumber = 1
+        self.RawQuestion = self.QuestionList[self.QuestionNumber - 1]," = ?"
+        self.Question = ("".join(map(str,self.RawQuestion)))
+        self.TotalScore = 0
 
         self.submit_answer_button = QPushButton("Submit Answer")
         self.SubmitAnswerFont = QFont()
@@ -191,24 +194,28 @@ class MainScreenWindow(QMainWindow):
         self.PrimaryMathsTitle = QLabel("Primary Maths Game")
         self.PrimaryMathsTitle.setAlignment(Qt.AlignCenter)
         self.PrimaryMathsTitle.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+
         
         PrimaryMathsTitleFont = QFont()
         PrimaryMathsTitleFont.setPointSize(15)
         PrimaryMathsTitleFont.setBold(True)
         self.PrimaryMathsTitle.setFont(PrimaryMathsTitleFont)
 
-        self.QuestionLabel = QLabel("Question {0}".format(QuestionNumber))
+        self.QuestionLabel = QLabel("Question {0}".format(self.QuestionNumber))
         QuestionLabelFont = QFont()
         QuestionLabelFont.setPointSize(15)
         self.QuestionLabel.setFont(QuestionLabelFont)
         self.QuestionLabel.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+
+        self.CurrentScoreLabel = QLabel("Current Score: {0}".format(self.TotalScore))
+        self.CurrentScoreLabel.setFont(QuestionLabelFont)
 
         self.SmallQuestionLabel = QLabel("Question: ")
         SmallQuestionFont = QFont()
         SmallQuestionFont.setPointSize(15)
         self.SmallQuestionLabel.setFont(SmallQuestionFont)
 
-        self.QuestionDisplay = QLabel("{0}".format(Question))
+        self.QuestionDisplay = QLabel("{0}".format(self.Question))
         QuestionDisplayFont = QFont()
         QuestionDisplayFont.setPointSize(20)
         self.QuestionDisplay.setFont(QuestionDisplayFont)
@@ -231,6 +238,7 @@ class MainScreenWindow(QMainWindow):
         
         self.top_layout.addWidget(self.PrimaryMathsTitle)
         self.under_top_layout.addWidget(self.QuestionLabel)
+        self.under_top_layout.addWidget(self.CurrentScoreLabel)
         self.middle_layout.addWidget(self.SmallQuestionLabel,0,0)
         self.middle_layout.addWidget(self.QuestionDisplay,0,1)
         self.middle_layout.addWidget(self.AnswerLabel,1,0)
@@ -242,9 +250,9 @@ class MainScreenWindow(QMainWindow):
         self.game_widget.setMinimumSize(QSize(450,300))
 
         self.Quit_Button.clicked.connect(self.main_screen_back)
-        #self.submit_answer_button.clicked.connect()
-
-        return QuestionNumber
+        self.submit_answer_button.clicked.connect(self.answering)
+        self.submit_answer_button.clicked.connect(self.updating_game_interface)
+        
 
     def create_database_screen(self):
         self.db = QSqlDatabase.addDatabase("QSQLITE")
@@ -390,6 +398,26 @@ class MainScreenWindow(QMainWindow):
 
         self.delete_button.clicked.connect(self.deleting_student_from_database)
         self.Quit_Button.clicked.connect(self.changing_to_options)
+
+    def end_game_layout(self):
+
+        self.End_Button = QPushButton("End Game")
+        self.Score_Display = QLabel("{0}/20 was your final score for that game!".format(self.TotalScore))
+
+        self.layout = QHBoxLayout()
+        self.middle_layout = QHBoxLayout()
+        self.bottom_layout = QHBoxLayout()
+
+        self.layout.addLayout(self.middle_layout)
+        self.layout.addLayout(self.bottom_layout)
+
+        self.end_widget = QWidget()
+        self.end_widget.setLayout(self.layout)
+
+        self.bottom_layout.addWidget(self.End_Button)
+        self.middle_layout.addWidget(self.Score_Display)
+
+        self.End_Button.clicked.connect(self.main_screen_back)
         
 
     def change_student_records_intermediate(self):
@@ -518,9 +546,17 @@ class MainScreenWindow(QMainWindow):
             FirstNumberList.append(FirstNumber)
 
         SecondNumberList = []
+        count = 0
         for each in range(20):
             SecondNumber = random.randint(1,20)
-            SecondNumberList.append(SecondNumber)
+            validtwo = False
+            while validtwo == False:
+                if SecondNumber > FirstNumberList[count]:
+                    SecondNumber = random.randint(1,20)
+                else:
+                    validtwo = True
+                    SecondNumberList.append(SecondNumber)
+                    count = count+1
 
         SignList = []
         SignList.append("*")
@@ -532,6 +568,7 @@ class MainScreenWindow(QMainWindow):
         SignListChoice = random.randint(0,3)
 
         self.QuestionList = []
+        self.Answers = []
         
         for each in range(20):
             ListChoice = random.randint(0,19)
@@ -541,13 +578,39 @@ class MainScreenWindow(QMainWindow):
 
             self.QuestionList.append(NewQuestion)
 
-        Answers = []
-        for count in range(20):
-            RawAnswer = int(FirstNumberList[count]),SignList[1],int(SecondNumberList[count])
-            Answer = ("".join(map(str,RawAnswer)))
-            Answers.append(Answer)
-        for each in range(len(Answers)):
-            print(Answers[each])
+            if SignList[SignListChoice] == "*":
+                Answer = FirstNumberList[ListChoice] * SecondNumberList[ListChoice]
+            elif SignList[SignListChoice] == "-":
+                Answer = FirstNumberList[ListChoice] - SecondNumberList[ListChoice]
+            elif SignList[SignListChoice] == "+":
+                Answer = FirstNumberList[ListChoice] + SecondNumberList[ListChoice]
+            elif SignList[SignListChoice] == "/":
+                Answer = FirstNumberList[ListChoice] / SecondNumberList[ListChoice]
+
+            self.Answers.append(Answer)
+
+    def answering(self):
+        print(self.QuestionNumber)
+        print(int(self.AnswerLine.text()))
+        print(self.Answers[self.QuestionNumber-1])
+        if int(self.AnswerLine.text()) == int(self.Answers[self.QuestionNumber-1]):
+            self.TotalScore += 1
+            self.AnswerLine.clear()
+        elif self.AnswerLine.text() != self.Answers[self.QuestionNumber-1]:
+            print("woops")
+            self.AnswerLine.clear()
+
+    def updating_game_interface(self):
+        if self.QuestionNumber == 20:
+            self.changing_to_end()
+        else:
+            self.QuestionNumber += 1
+            print(self.QuestionNumber)
+            self.CurrentScoreLabel.setText("Current Score = {0}".format(self.TotalScore))
+            self.QuestionLabel.setText("Question {0}".format(self.QuestionNumber))
+            self.RawQuestion = self.QuestionList[self.QuestionNumber - 1]," = ?"
+            self.Question = ("".join(map(str,self.RawQuestion)))
+            self.QuestionDisplay.setText("{0}".format(self.Question))
 
             
     def main_screen_back(self):
@@ -585,6 +648,10 @@ class MainScreenWindow(QMainWindow):
     def changing_to_validation(self):
         self.setWindowTitle("Primary Maths Game - Validation Window")
         self.stacked_layout.setCurrentIndex(8)
+
+    def changing_to_end(self):
+        self.setWindowTitle("Primary Maths Game - End Window")
+        self.stacked_layout.setCurrentIndex(9)
 
 def main():
     application = QApplication(sys.argv)
